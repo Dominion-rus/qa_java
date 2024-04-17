@@ -1,55 +1,63 @@
 package com.example;
 
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
 
+@RunWith(Parameterized.class)
 public class AnimalTest {
-    private Feline felineMock;
-    private Cat cat;
+    Animal animal = new Animal();
 
-    @Before
-    public void setUp() {
-        felineMock = mock(Feline.class);
-        cat = new Cat(felineMock);
+    private final String testAnimalKind;
+    private final List<String> expectedListOfFood;
+
+    public AnimalTest (String testAnimalKind, List<String> expectedListOfFood) {
+        this.testAnimalKind = testAnimalKind;
+        this.expectedListOfFood = expectedListOfFood;
+    }
+
+    @Parameterized.Parameters
+    public static Object[][] getFoodData() {
+        return new Object[][]{
+                {"Травоядное", List.of("Трава", "Различные растения")},
+                {"Хищник", List.of("Животные", "Птицы", "Рыба")},
+        };
     }
 
     @Test
-    public void getSound() {
-        assertEquals("Мяу", cat.getSound());
+    public void testPositiveFoodValuesWithAnimal() throws Exception {
+        List <String> actualListOfFeed = animal.getFood(testAnimalKind);
+        assertEquals(expectedListOfFood, actualListOfFeed);
+
     }
 
     @Test
-    public void getFood() throws Exception {
-        List<String> food = List.of("Корм");
-        when(felineMock.eatMeat()).thenReturn(food);
-        List<String> result = cat.getFood();
-        assertEquals(food, result);
-    }
-
-
-    @Test
-    public void testFelineEatMeat() throws Exception {
-        List<String> meat = List.of("Животные", "Птицы", "Рыба");
-        when(felineMock.eatMeat()).thenReturn(meat);
-        assertEquals(meat, felineMock.eatMeat());
+    public void testPositiveFamilyValueWithAnimal() {
+        String expected = "Существует несколько семейств: заячьи, беличьи, мышиные, кошачьи, псовые, медвежьи, куньи";
+        String actual = animal.getFamily();
+        assertEquals(expected, actual);
     }
 
     @Test
-    public void testFelineGetFamily() {
-        Feline feline = new Feline();
-        Assert.assertEquals("Кошачьи", feline.getFamily());
+    public void testNullExceptionForEmptyStringInGetFood()  {
+        assertThrows(
+                Exception.class,
+                () -> animal.getFood(null));
     }
 
     @Test
-    public void testCatGetSound() {
-        Cat cat = new Cat(new Feline());
-        Assert.assertEquals("Мяу", cat.getSound());
+    public void testNonexistentAnimalKindExceptionMessage() {
+        try {
+            animal.getFood("Другое");
+            fail("Expected validation exception was not thrown");
+        } catch (Exception e) {
+            assertEquals("Неизвестный вид животного, используйте значение Травоядное или Хищник",
+                    e.getMessage());
+
+        }
     }
 }

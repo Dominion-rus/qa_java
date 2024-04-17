@@ -1,2 +1,2 @@
-# qa_java
+# Финальный проект 6 спринта
 QA Java Project
